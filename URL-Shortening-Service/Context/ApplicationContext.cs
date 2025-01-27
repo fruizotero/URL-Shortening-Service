@@ -15,6 +15,8 @@ namespace URL_Shortening_Service.Context
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
+
+        DbSet<ShortUrlEntity> ShortUrls { get; set; }
     }
     
 }
