@@ -4,7 +4,7 @@ using URL_Shortening_Service.Models.entities;
 
 namespace URL_Shortening_Service.Context
 {
-    public class ApplicationContext: DbContext
+    public class ApplicationContext : DbContext
     {
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {
@@ -16,7 +16,7 @@ namespace URL_Shortening_Service.Context
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
 
-        DbSet<ShortUrlEntity> ShortUrls { get; set; }
+        public DbSet<ShortUrlEntity> ShortUrls { get; set; }
     }
-    
+
 }

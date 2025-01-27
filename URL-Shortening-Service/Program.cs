@@ -1,7 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using URL_Shortening_Service.Context;
+using URL_Shortening_Service.Context.respositories;
+using URL_Shortening_Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// inyectar dependencias
+builder.Services.AddScoped<ShortUrlRepository>();
+builder.Services.AddScoped<ShortUrlService>();
 
 // Add services to the container.
 // configuracion de entity framework

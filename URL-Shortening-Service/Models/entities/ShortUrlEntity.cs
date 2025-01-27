@@ -10,5 +10,7 @@
 
         public DateTime? UpdatedAt { get; set; }
 
+        public int AccessCount { get; set; }
+
     }
 }
