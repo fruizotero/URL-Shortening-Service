@@ -1,6 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using URL_Shortening_Service.Context;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// configuracion de entity framework
+builder.Services.AddDbContext<ApplicationContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("name=DefaultConnection"));
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
