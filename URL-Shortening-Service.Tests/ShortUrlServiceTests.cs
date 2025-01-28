@@ -9,6 +9,7 @@ using Moq;
 using URL_Shortening_Service.Context;
 using URL_Shortening_Service.Context.respositories;
 using URL_Shortening_Service.Exceptions;
+using URL_Shortening_Service.Models.DTOs;
 using URL_Shortening_Service.Models.entities;
 using URL_Shortening_Service.Services;
 
@@ -75,6 +76,67 @@ namespace URL_Shortening_Service.Tests
             Assert.NotNull(exception);
             Assert.Equal("Short URL not found", exception.Message);
             _shortUrlRepositoryMock.Verify(x => x.GetOriginalUrlByShortCode(shortCode), Times.Once);
+        }
+
+        // devuelve exepcion shortUrlCannotBeEmpty cuando la url es vacia
+        [Fact]
+        public async Task AddShortUrl_ShouldThrowShortUrlCannotBeEmpty_WhenUrlIsEmpty()
+        {
+            // Arrange
+            var urlRequest = new ShortUrlRequestDTO {
+                Url = ""
+            };
+            // Act
+            var exception = await Assert.ThrowsAsync<ShortUrlCannotBeEmpty>(() => _shortUrlService.AddShortUrl(urlRequest));
+            // Assert
+            Assert.NotNull(exception);
+            Assert.Equal("URL cannot be empty", exception.Message);
+            _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url), Times.Never);
+        }
+
+
+        // devuelve exepcion shortUrlIsNotValid cuando la url no es valida
+        [Fact]
+        public async Task AddShortUrl_ShouldThrowShortUrlIsNotValid_WhenUrlIsNotValid()
+        {
+            // Arrange
+            var urlRequest = new ShortUrlRequestDTO
+            {
+                Url = "google.com"
+            };
+            // Act
+            var exception = await Assert.ThrowsAsync<ShortUrlIsNotValid>(() => _shortUrlService.AddShortUrl(urlRequest));
+            // Assert
+            Assert.NotNull(exception);
+            Assert.Equal("URL is not valid", exception.Message);
+            _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url), Times.Never);
+        }
+
+
+        // devuelve la entidad ShortUrlEntity cuando la url es valida
+        [Fact]
+        public async Task AddShortUrl_ShouldReturnDTO_WhenUrlIsValid()
+        {
+            // Arrange
+            var urlRequest = new ShortUrlRequestDTO
+            {
+                Url = "https://www.google.com"
+            };
+
+            var shortUrlEntity = new ShortUrlEntity
+            {
+                Id = 1,
+                Url = "https://www.google.com",
+                ShortCode = "abc123"
+            };
+            _shortUrlRepositoryMock.Setup(x => x.AddOriginalUrl(urlRequest.Url)).ReturnsAsync(shortUrlEntity);
+            // Act
+            var shortUrlDTO = await _shortUrlService.AddShortUrl(urlRequest);
+            // Assert
+            Assert.NotNull(shortUrlDTO);
+            Assert.Equal(shortUrlEntity.Url, shortUrlDTO.Url);
+            Assert.Equal(shortUrlEntity.ShortCode, shortUrlDTO.ShortCode);
+            _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url), Times.Once);
         }
     }
 }
