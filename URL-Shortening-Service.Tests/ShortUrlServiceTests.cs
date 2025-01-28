@@ -268,5 +268,39 @@ namespace URL_Shortening_Service.Tests
             _shortUrlRepositoryMock.Verify(repo => repo.UpdateShortUrl(shortUrlRequestDTO.Url, shortCode), Times.Once);
         }
 
+        [Fact]
+        public async Task DeleteShortUrl_ShouldThrowShortUrlNotFoundException_WhenShortCodeDoesNotExist()
+        {
+            // Arrange
+            var shortCode = "abc123";
+            _shortUrlRepositoryMock.Setup(x => x.GetOriginalUrlByShortCode(shortCode)).ReturnsAsync((ShortUrlEntity)null);
+            // Act
+            var exception = await Assert.ThrowsAsync<ShortUrlNotFoundException>(() => _shortUrlService.DeleteShortUrl(shortCode));
+            // Assert
+            Assert.NotNull(exception);
+            Assert.Equal("Short code not found", exception.Message);
+            _shortUrlRepositoryMock.Verify(x => x.GetOriginalUrlByShortCode(shortCode), Times.Once);
+        }
+
+        // deleteShortUrl deberia retorna void cuando el shortCode existe y se elimina correctamente
+        [Fact]
+        public async Task DeleteShortUrl_ShouldReturnVoid_WhenShortCodeExists()
+        {
+            // Arrange
+            var shortCode = "abc123";
+            var shortUrlEntity = new ShortUrlEntity
+            {
+                Id = 1,
+                Url = "https://www.google.com",
+                ShortCode = "abc123"
+            };
+            _shortUrlRepositoryMock.Setup(x => x.GetOriginalUrlByShortCode(shortCode)).ReturnsAsync(shortUrlEntity);
+            // Act
+            await _shortUrlService.DeleteShortUrl(shortCode);
+            // Assert
+            _shortUrlRepositoryMock.Verify(x => x.GetOriginalUrlByShortCode(shortCode), Times.Once);
+            _shortUrlRepositoryMock.Verify(x => x.DeleteShortUrl(shortCode), Times.Once);
+        }
+
     }
 }
