@@ -34,5 +34,32 @@ namespace URL_Shortening_Service.Services
             };
         }
 
+        public async Task<ShortUrlDTO> AddShortUrl(ShortUrlRequestDTO shortUrlRequestDTO)
+        {
+
+            var url = shortUrlRequestDTO.Url;
+
+            if (string.IsNullOrEmpty(url))
+            {
+                throw new ShortUrlCannotBeEmpty("URL cannot be empty");
+            }
+
+        
+            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
+            {
+                throw new ShortUrlIsNotValid("URL is not valid");
+            }
+
+            var shortUrl = await _shortUrlRepository.AddOriginalUrl(url);
+            return new ShortUrlDTO
+            {
+                Id = shortUrl.Id,
+                Url = shortUrl.Url,
+                ShortCode = shortUrl.ShortCode,
+                CreatedAt = shortUrl.CreatedAt,
+                UpdatedAt = shortUrl.UpdatedAt
+            };
+        }
+
     }
 }

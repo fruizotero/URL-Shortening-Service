@@ -31,5 +31,24 @@ namespace URL_Shortening_Service.Controllers
                 return NotFound(e.Message);
             }
         }
+
+        // funcion para AddShortUrl
+        [HttpPost]
+        public async Task<IActionResult> AddShortUrl([FromBody] ShortUrlRequestDTO shortUrlRequestDTO)
+        {
+            try
+            {
+                var shortUrlDTO = await _shortUrlService.AddShortUrl(shortUrlRequestDTO);
+                return Ok(shortUrlDTO);
+            }
+            catch (ShortUrlCannotBeEmpty e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (ShortUrlIsNotValid e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
