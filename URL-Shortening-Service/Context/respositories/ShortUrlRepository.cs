@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using URL_Shortening_Service.Models.DTOs;
 using URL_Shortening_Service.Models.entities;
 
 namespace URL_Shortening_Service.Context.respositories
@@ -21,7 +22,7 @@ namespace URL_Shortening_Service.Context.respositories
 
         public virtual async Task<ShortUrlEntity> AddOriginalUrl(string url, string shortCode)
         {
-           
+
             var shortUrl = new ShortUrlEntity
             {
                 Url = url,
@@ -33,5 +34,17 @@ namespace URL_Shortening_Service.Context.respositories
             await _context.SaveChangesAsync();
             return shortUrl;
         }
+
+        public virtual async Task<ShortUrlEntity> UpdateShortUrl(string url, string shortCode)
+        {
+
+            var shortUrl = await GetOriginalUrlByShortCode(shortCode);
+            shortUrl.Url = url;
+            shortUrl.UpdatedAt = DateTime.Now;
+            await _context.SaveChangesAsync();
+            return shortUrl;
+        }
+
+      
     }
 }

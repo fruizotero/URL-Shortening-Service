@@ -50,5 +50,28 @@ namespace URL_Shortening_Service.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        // funcion para UpdateShortUrl
+        [HttpPut("{shortCode}")]
+        public async Task<IActionResult> UpdateShortUrl(string shortCode, [FromBody] ShortUrlRequestDTO shortUrlRequestDTO)
+        {
+            try
+            {
+                var shortUrlDTO = await _shortUrlService.UpdateOriginalUrl(shortUrlRequestDTO, shortCode);
+                return Ok(shortUrlDTO);
+            }
+            catch (ShortUrlNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (ShortUrlCannotBeEmpty e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (ShortUrlIsNotValid e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
