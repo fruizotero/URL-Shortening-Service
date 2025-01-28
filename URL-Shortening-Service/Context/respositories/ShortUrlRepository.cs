@@ -19,9 +19,9 @@ namespace URL_Shortening_Service.Context.respositories
             return await _context.ShortUrls.FirstOrDefaultAsync(x => x.ShortCode == shortCode);
         }
 
-        public virtual async Task<ShortUrlEntity> AddOriginalUrl(string url)
+        public virtual async Task<ShortUrlEntity> AddOriginalUrl(string url, string shortCode)
         {
-            var shortCode = Guid.NewGuid().ToString().Substring(0, 6);
+           
             var shortUrl = new ShortUrlEntity
             {
                 Url = url,

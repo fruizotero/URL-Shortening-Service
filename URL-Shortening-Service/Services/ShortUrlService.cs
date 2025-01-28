@@ -49,8 +49,8 @@ namespace URL_Shortening_Service.Services
             {
                 throw new ShortUrlIsNotValid("URL is not valid");
             }
-
-            var shortUrl = await _shortUrlRepository.AddOriginalUrl(url);
+            var shortCode = Guid.NewGuid().ToString().Substring(0, 6);
+            var shortUrl = await _shortUrlRepository.AddOriginalUrl(url, shortCode);
             return new ShortUrlDTO
             {
                 Id = shortUrl.Id,

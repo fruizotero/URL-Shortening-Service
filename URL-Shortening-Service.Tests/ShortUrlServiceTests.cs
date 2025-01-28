@@ -86,12 +86,13 @@ namespace URL_Shortening_Service.Tests
             var urlRequest = new ShortUrlRequestDTO {
                 Url = ""
             };
+            var shortCode = "abc123";
             // Act
             var exception = await Assert.ThrowsAsync<ShortUrlCannotBeEmpty>(() => _shortUrlService.AddShortUrl(urlRequest));
             // Assert
             Assert.NotNull(exception);
             Assert.Equal("URL cannot be empty", exception.Message);
-            _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url), Times.Never);
+            _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url, shortCode), Times.Never);
         }
 
 
@@ -104,12 +105,13 @@ namespace URL_Shortening_Service.Tests
             {
                 Url = "google.com"
             };
+            var shortCode = "abc123";
             // Act
             var exception = await Assert.ThrowsAsync<ShortUrlIsNotValid>(() => _shortUrlService.AddShortUrl(urlRequest));
             // Assert
             Assert.NotNull(exception);
             Assert.Equal("URL is not valid", exception.Message);
-            _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url), Times.Never);
+            _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url, shortCode), Times.Never);
         }
 
 
@@ -123,20 +125,23 @@ namespace URL_Shortening_Service.Tests
                 Url = "https://www.google.com"
             };
 
+
             var shortUrlEntity = new ShortUrlEntity
             {
                 Id = 1,
                 Url = "https://www.google.com",
                 ShortCode = "abc123"
             };
-            _shortUrlRepositoryMock.Setup(x => x.AddOriginalUrl(urlRequest.Url)).ReturnsAsync(shortUrlEntity);
+
+            _shortUrlRepositoryMock.Setup(x => x.AddOriginalUrl(urlRequest.Url, It.IsAny<string>())).ReturnsAsync(shortUrlEntity);
+
             // Act
             var shortUrlDTO = await _shortUrlService.AddShortUrl(urlRequest);
             // Assert
             Assert.NotNull(shortUrlDTO);
             Assert.Equal(shortUrlEntity.Url, shortUrlDTO.Url);
             Assert.Equal(shortUrlEntity.ShortCode, shortUrlDTO.ShortCode);
-            _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url), Times.Once);
+            _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url, It.IsAny<string>()), Times.Once);
         }
     }
 }
