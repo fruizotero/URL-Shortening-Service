@@ -45,6 +45,13 @@ namespace URL_Shortening_Service.Context.respositories
             return shortUrl;
         }
 
-      
+        public virtual async Task DeleteShortUrl(string shortCode)
+        {
+            var shortUrl = await GetOriginalUrlByShortCode(shortCode);
+            _context.ShortUrls.Remove(shortUrl);
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }

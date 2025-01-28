@@ -73,5 +73,20 @@ namespace URL_Shortening_Service.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        // endpoint para eliminar un shortUrl
+        [HttpDelete("{shortCode}")]
+        public async Task<IActionResult> DeleteShortUrl(string shortCode)
+        {
+            try
+            {
+                await _shortUrlService.DeleteShortUrl(shortCode);
+                return NoContent();
+            }
+            catch (ShortUrlNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+        }
     }
 }

@@ -97,5 +97,15 @@ namespace URL_Shortening_Service.Services
 
 
         }
+
+        public async Task DeleteShortUrl(string shortCode)
+        {
+            var shortUrl = await _shortUrlRepository.GetOriginalUrlByShortCode(shortCode);
+            if (shortUrl == null)
+            {
+                throw new ShortUrlNotFoundException("Short code not found");
+            }
+            await _shortUrlRepository.DeleteShortUrl(shortCode);
+        }
     }
 }
