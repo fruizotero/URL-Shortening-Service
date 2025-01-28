@@ -80,6 +80,32 @@ namespace URL_Shortening_Service.Tests
             _shortUrlRepositoryMock.Verify(x => x.GetOriginalUrlByShortCode(shortCode), Times.Once);
         }
 
+        // devuelve excepcion si url ya existe
+        [Fact]
+        public async Task AddShortUrl_ShouldThrowShortUrlAlreadyExists_WhenUrlExists()
+        {
+            // Arrange
+            var urlRequest = new ShortUrlRequestDTO
+            {
+                Url = "https://www.google.com"
+            };
+            var shortCode = "abc123";
+            var shortUrlEntity = new ShortUrlEntity
+            {
+                Id = 1,
+                Url = "https://www.google.com",
+                ShortCode = "abc123"
+            };
+            _shortUrlRepositoryMock.Setup(x => x.GetOriginalUrlByUrl(urlRequest.Url)).ReturnsAsync(shortUrlEntity);
+            // Act
+            var exception = await Assert.ThrowsAsync<ShortUrlAlreadyExists>(() => _shortUrlService.AddShortUrl(urlRequest));
+            // Assert
+            Assert.NotNull(exception);
+            Assert.Equal("URL already exists", exception.Message);
+            _shortUrlRepositoryMock.Verify(x => x.GetOriginalUrlByUrl(urlRequest.Url), Times.Once);
+            _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url, shortCode), Times.Never);
+        }
+
         // devuelve exepcion shortUrlCannotBeEmpty cuando la url es vacia
         [Fact]
         public async Task AddShortUrl_ShouldThrowShortUrlCannotBeEmpty_WhenUrlIsEmpty()
@@ -317,7 +343,8 @@ namespace URL_Shortening_Service.Tests
             _shortUrlRepositoryMock.Verify(x => x.IncrementAccessCount(shortCode), Times.Once);
         }
 
-
+  
+        
 
     }
 }
