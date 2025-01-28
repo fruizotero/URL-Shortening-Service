@@ -302,5 +302,22 @@ namespace URL_Shortening_Service.Tests
             _shortUrlRepositoryMock.Verify(x => x.DeleteShortUrl(shortCode), Times.Once);
         }
 
+
+
+        // incrementAccessCount deberia retornar void cuando el shortCode existe y se incrementa correctamente
+        [Fact]
+        public async Task IncrementAccessCount_ShouldReturnVoid_WhenShortCodeExists()
+        {
+            // Arrange
+            var shortCode = "abc123";
+         
+            // Act
+            await _shortUrlService.IncrementAccessAcount(shortCode);
+            // Assert
+            _shortUrlRepositoryMock.Verify(x => x.IncrementAccessCount(shortCode), Times.Once);
+        }
+
+
+
     }
 }
