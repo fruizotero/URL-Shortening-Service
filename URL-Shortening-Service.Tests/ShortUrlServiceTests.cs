@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
+using Microsoft.VisualStudio.TestPlatform.Common;
 using Moq;
 using URL_Shortening_Service.Context;
 using URL_Shortening_Service.Context.respositories;
@@ -32,7 +34,7 @@ namespace URL_Shortening_Service.Tests
             _context = new ApplicationContext(options);
             _shortUrlRepositoryMock = new Mock<ShortUrlRepository>(_context);
             _shortUrlService = new ShortUrlService(_shortUrlRepositoryMock.Object);
-            
+
         }
 
         public void Dispose()
@@ -74,7 +76,7 @@ namespace URL_Shortening_Service.Tests
             var exception = await Assert.ThrowsAsync<ShortUrlNotFoundException>(() => _shortUrlService.GetShortUrlByShortCode(shortCode));
             // Assert
             Assert.NotNull(exception);
-            Assert.Equal("Short URL not found", exception.Message);
+            Assert.Equal("Short code not found", exception.Message);
             _shortUrlRepositoryMock.Verify(x => x.GetOriginalUrlByShortCode(shortCode), Times.Once);
         }
 
@@ -83,7 +85,8 @@ namespace URL_Shortening_Service.Tests
         public async Task AddShortUrl_ShouldThrowShortUrlCannotBeEmpty_WhenUrlIsEmpty()
         {
             // Arrange
-            var urlRequest = new ShortUrlRequestDTO {
+            var urlRequest = new ShortUrlRequestDTO
+            {
                 Url = ""
             };
             var shortCode = "abc123";
@@ -143,5 +146,127 @@ namespace URL_Shortening_Service.Tests
             Assert.Equal(shortUrlEntity.ShortCode, shortUrlDTO.ShortCode);
             _shortUrlRepositoryMock.Verify(x => x.AddOriginalUrl(urlRequest.Url, It.IsAny<string>()), Times.Once);
         }
+
+        // devuelve excepcion ShortUrlNotFoundException cuando no existe el shortCode en la funcion UpdateOriginalUrl
+        [Fact]
+        public async Task UpdateOriginalUrl_ShouldThrowShortUrlNotFoundException_WhenShortCodeDoesNotExist()
+        {
+            // Arrange
+            var shortCode = "abc123";
+            var urlRequest = new ShortUrlRequestDTO
+            {
+                Url = "https://www.google.com"
+            };
+            _shortUrlRepositoryMock.Setup(x => x.GetOriginalUrlByShortCode(shortCode)).ReturnsAsync((ShortUrlEntity)null);
+            // Act
+            var exception = await Assert.ThrowsAsync<ShortUrlNotFoundException>(() => _shortUrlService.UpdateOriginalUrl(urlRequest, shortCode));
+            // Assert
+            Assert.NotNull(exception);
+            Assert.Equal("Short code not found", exception.Message);
+            _shortUrlRepositoryMock.Verify(x => x.GetOriginalUrlByShortCode(shortCode), Times.Once);
+        }
+
+        // devuelve excepcion ShortUrlCannotBeEmpty cuando la url es vacia en la funcion UpdateOriginalUrl
+        [Fact]
+        public async Task UpdateOriginalUrl_ShouldThrowShortUrlCannotBeEmpty_WhenUrlIsEmpty()
+        {
+            // Arrange
+            var shortCode = "abc123";
+            var urlRequest = new ShortUrlRequestDTO
+            {
+                Url = ""
+            };
+            var shortUrlEntity = new ShortUrlEntity
+            {
+                Id = 1,
+                Url = "https://www.google.com",
+                ShortCode = "abc123"
+            };
+            _shortUrlRepositoryMock.Setup(x => x.GetOriginalUrlByShortCode(shortCode)).ReturnsAsync(shortUrlEntity);
+            // Act
+            var exception = await Assert.ThrowsAsync<ShortUrlCannotBeEmpty>(() => _shortUrlService.UpdateOriginalUrl(urlRequest, shortCode));
+            // Assert
+            Assert.NotNull(exception);
+            Assert.Equal("URL cannot be empty", exception.Message);
+            _shortUrlRepositoryMock.Verify(x => x.GetOriginalUrlByShortCode(shortCode), Times.Once);
+        }
+
+        // devuelve exepción ShortUrlIsNotValid cuando la url no es valida en la funcion UpdateOriginalUrl
+        [Fact]
+        public async Task UpdateOriginalUrl_ShouldThrowShortUrlIsNotValid_WhenUrlIsNotValid()
+        {
+            // Arrange
+            var shortCode = "abc123";
+            var urlRequest = new ShortUrlRequestDTO
+            {
+                Url = "google.com"
+            };
+            var shortUrlEntity = new ShortUrlEntity
+            {
+                Id = 1,
+                Url = "https://www.google.com",
+                ShortCode = "abc123"
+            };
+            _shortUrlRepositoryMock.Setup(x => x.GetOriginalUrlByShortCode(shortCode)).ReturnsAsync(shortUrlEntity);
+
+            // Act
+            var exception = await Assert.ThrowsAsync<ShortUrlIsNotValid>(() => _shortUrlService.UpdateOriginalUrl(urlRequest, shortCode));
+            // Assert
+            Assert.NotNull(exception);
+            Assert.Equal("URL is not valid", exception.Message);
+            _shortUrlRepositoryMock.Verify(x => x.GetOriginalUrlByShortCode(shortCode), Times.Once);
+        }
+
+        // devuelve la entidad ShortUrlDTO cuando la url es valida en la funcion UpdateOriginalUrl
+        [Fact]
+        public async Task UpdateOriginalUrl_ShouldReturnDTO_WhenUrlIsValid()
+        {
+            // Arrange
+            var shortCode = "abc123";
+            var shortUrlRequestDTO = new ShortUrlRequestDTO
+            {
+                Url = "https://www.google.com"
+            };
+            var shortUrlEntity = new ShortUrlEntity
+            {
+                Id = 1,
+                Url = "https://www.google.com",
+                ShortCode = "abc123",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var updatedShortUrl = new ShortUrlEntity
+            {
+                Id = 1,
+                Url = "https://newurl.com",
+                ShortCode = shortCode,
+                CreatedAt = shortUrlEntity.CreatedAt,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            _shortUrlRepositoryMock.Setup(x => x.GetOriginalUrlByShortCode(shortCode)).ReturnsAsync(shortUrlEntity);
+            // Act
+            _shortUrlRepositoryMock.Setup(repo => repo.GetOriginalUrlByShortCode(shortCode))
+                .ReturnsAsync(shortUrlEntity);
+
+            _shortUrlRepositoryMock.Setup(repo => repo.UpdateShortUrl(shortUrlRequestDTO.Url, shortCode))
+                     .ReturnsAsync(updatedShortUrl);
+
+            // Act
+            var result = await _shortUrlService.UpdateOriginalUrl(shortUrlRequestDTO, shortCode);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(updatedShortUrl.Id, result.Id);
+            Assert.Equal(updatedShortUrl.Url, result.Url);
+            Assert.Equal(updatedShortUrl.ShortCode, result.ShortCode);
+            Assert.Equal(updatedShortUrl.CreatedAt, result.CreatedAt);
+            Assert.Equal(updatedShortUrl.UpdatedAt, result.UpdatedAt);
+
+            // Verificar que los métodos del repositorio fueron llamados una vez
+            _shortUrlRepositoryMock.Verify(repo => repo.GetOriginalUrlByShortCode(shortCode), Times.Once);
+            _shortUrlRepositoryMock.Verify(repo => repo.UpdateShortUrl(shortUrlRequestDTO.Url, shortCode), Times.Once);
+        }
+
     }
 }
