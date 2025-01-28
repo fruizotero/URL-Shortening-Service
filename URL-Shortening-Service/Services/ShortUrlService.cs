@@ -24,6 +24,7 @@ namespace URL_Shortening_Service.Services
                 throw new ShortUrlNotFoundException("Short code not found");
             }
 
+
             return new ShortUrlDTO
             {
                 Id = shortUrl.Id,
@@ -44,7 +45,7 @@ namespace URL_Shortening_Service.Services
                 throw new ShortUrlCannotBeEmpty("URL cannot be empty");
             }
 
-        
+
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
             {
                 throw new ShortUrlIsNotValid("URL is not valid");
@@ -106,6 +107,33 @@ namespace URL_Shortening_Service.Services
                 throw new ShortUrlNotFoundException("Short code not found");
             }
             await _shortUrlRepository.DeleteShortUrl(shortCode);
+        }
+
+
+        public async Task IncrementAccessAcount(string shortCode)
+        {
+            await _shortUrlRepository.IncrementAccessCount(shortCode);
+        }
+
+        public async Task<ShortUrlDtoWithAccessAcount> Stats(string shortCode)
+        {
+            var shortUrl = await _shortUrlRepository.GetOriginalUrlByShortCode(shortCode);
+
+            if (shortUrl == null)
+            {
+                throw new ShortUrlNotFoundException("Short code not found");
+            }
+
+
+            return new ShortUrlDtoWithAccessAcount
+            {
+                Id = shortUrl.Id,
+                Url = shortUrl.Url,
+                ShortCode = shortUrl.ShortCode,
+                CreatedAt = shortUrl.CreatedAt,
+                UpdatedAt = shortUrl.UpdatedAt,
+                AccessCount = shortUrl.AccessCount
+            };
         }
     }
 }

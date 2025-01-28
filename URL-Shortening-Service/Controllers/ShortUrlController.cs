@@ -24,6 +24,7 @@ namespace URL_Shortening_Service.Controllers
             try
             {
                 var shortUrlDTO = await _shortUrlService.GetShortUrlByShortCode(shortCode);
+                await _shortUrlService.IncrementAccessAcount(shortCode);
                 return Ok(shortUrlDTO);
             }
             catch (ShortUrlNotFoundException e)
@@ -88,5 +89,32 @@ namespace URL_Shortening_Service.Controllers
                 return NotFound(e.Message);
             }
         }
+
+        // endpoint para stats
+
+        [HttpGet("{shortCode}/stats")]
+        public async Task<IActionResult> StatsShortUrl(string shortCode)
+        {
+
+
+            try
+            {
+                var shortUrlDtoWithAccessAcount = await _shortUrlService.Stats(shortCode);
+
+                return Ok(shortUrlDtoWithAccessAcount);
+            }
+            catch (ShortUrlNotFoundException e)
+            {
+
+                return NotFound(e.Message);
+
+            }
+
+
+        }
+
+
+
+
     }
 }

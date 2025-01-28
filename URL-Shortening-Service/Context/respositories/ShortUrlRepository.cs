@@ -15,7 +15,7 @@ namespace URL_Shortening_Service.Context.respositories
         }
 
 
-        public virtual async Task<ShortUrlEntity> GetOriginalUrlByShortCode(string shortCode)
+        public virtual async Task<ShortUrlEntity?> GetOriginalUrlByShortCode(string shortCode)
         {
             return await _context.ShortUrls.FirstOrDefaultAsync(x => x.ShortCode == shortCode);
         }
@@ -52,6 +52,12 @@ namespace URL_Shortening_Service.Context.respositories
             await _context.SaveChangesAsync();
         }
 
+        public virtual async Task IncrementAccessCount(string shortCode)
+        {
+            var shortUrl = await GetOriginalUrlByShortCode(shortCode);
+            shortUrl.AccessCount++;
+            await _context.SaveChangesAsync();
+        }
 
     }
 }
