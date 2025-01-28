@@ -59,5 +59,10 @@ namespace URL_Shortening_Service.Context.respositories
             await _context.SaveChangesAsync();
         }
 
+        public virtual async Task<ShortUrlEntity?> GetOriginalUrlByUrl(string url)
+        {
+            return await _context.ShortUrls.FirstOrDefaultAsync(x => x.Url == url);
+        }
+
     }
 }

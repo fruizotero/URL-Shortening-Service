@@ -39,6 +39,11 @@ namespace URL_Shortening_Service.Services
         {
 
             var url = shortUrlRequestDTO.Url;
+       
+            if(await CheckIfUrlExists(url))
+            {
+                throw new ShortUrlAlreadyExists("URL already exists");
+            }
 
             if (string.IsNullOrEmpty(url))
             {
@@ -134,6 +139,12 @@ namespace URL_Shortening_Service.Services
                 UpdatedAt = shortUrl.UpdatedAt,
                 AccessCount = shortUrl.AccessCount
             };
+        }
+
+        public async Task<bool> CheckIfUrlExists(string url)
+        {
+            var shortUrl = await _shortUrlRepository.GetOriginalUrlByUrl(url);
+            return shortUrl != null;
         }
     }
 }
