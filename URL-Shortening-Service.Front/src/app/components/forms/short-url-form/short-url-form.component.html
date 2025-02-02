@@ -1,0 +1,15 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+  <select formControlName="method">
+    <option  value="post">POST</option>
+    <option value="get">GET</option>
+    <option value="put">PUT</option>
+    <option value="delete">DELETE</option>
+  </select>
+  <app-input-text
+    [label]="'Short URL'"
+    [formControlInput]="form.controls.shortUrl"
+
+  ></app-input-text>
+  <button type="submit">Submit</button>
+</form>
