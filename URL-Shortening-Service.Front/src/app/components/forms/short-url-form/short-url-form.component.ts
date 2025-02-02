@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { InputTextComponent } from "../../inputs/input-text/input-text.component";
+import { FormShortUrl } from '../../../interfaces/form-short-url';
 
 
 @Component({
@@ -11,6 +12,8 @@ import { InputTextComponent } from "../../inputs/input-text/input-text.component
 })
 export class ShortUrlFormComponent {
 
+  @Output() formSubmitted = new EventEmitter<FormShortUrl>();
+
   form = new FormGroup({
     method: new FormControl("get"),
     shortUrl: new FormControl(""),
@@ -19,7 +22,7 @@ export class ShortUrlFormComponent {
   // vincular mi formulario con el componente
 
   onSubmit() {
-    console.log("Formulario enviado", this.form.value);
+    this.formSubmitted.emit(this.form.value as FormShortUrl);
    }
 
 

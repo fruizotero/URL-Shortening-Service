@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { ResponseOkShortUrl } from '../interfaces/response-ok-short-url';
+import { catchError, of } from 'rxjs';
 
 
 @Injectable({
@@ -14,6 +16,16 @@ export class ShortUrlService {
 
   getShortUrl(url: string) {
 
-    return this.http.get(`${environment.apiUrl}/shorten/${url}`);
+    return this.http.
+      get<ResponseOkShortUrl>(`${environment.apiUrl}/shorten/${url}`)
+      .pipe(
+        catchError((error) => {
+          if (error.status === 404) {
+            return of({ message: 'Url not found' });
+          } else {
+            return of({ error: true, message: 'a problem occurred with the request' });
+          }
+        })
+      );
    }
 }
