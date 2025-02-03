@@ -5,6 +5,13 @@ using URL_Shortening_Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Obtener credenciales de las variables de entorno
+var userId = Environment.GetEnvironmentVariable("DB_USER_ID");
+var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") +
+                       $"User Id={userId};Password={password}";
+
 // inyectar dependencias
 builder.Services.AddScoped<ShortUrlRepository>();
 builder.Services.AddScoped<ShortUrlService>();
@@ -13,7 +20,7 @@ builder.Services.AddScoped<ShortUrlService>();
 // configuracion de entity framework
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(connectionString);
 });
 
 builder.Services.AddControllers();
