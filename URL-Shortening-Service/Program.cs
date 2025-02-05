@@ -5,12 +5,8 @@ using URL_Shortening_Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Obtener credenciales de las variables de entorno
-var userId = Environment.GetEnvironmentVariable("DB_USER_ID");
-var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") +
-                       $"User Id={userId};Password={password}";
+// Get connection string
+var connectionString = ConnectionStringProvider.GetConnectionString(builder.Configuration);
 
 // inyectar dependencias
 builder.Services.AddScoped<ShortUrlRepository>();

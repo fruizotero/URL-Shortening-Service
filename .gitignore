@@ -232,3 +232,7 @@ _Pvt_Extensions
 .fake/
 
 .vscode/
+
+.env
+
+dist/

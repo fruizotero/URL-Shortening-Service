@@ -1,0 +1,11 @@
+# Dockerfile.migrations
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+COPY . .
+RUN dotnet restore "URL-Shortening-Service.csproj"
+RUN dotnet build "URL-Shortening-Service.csproj" -c Release -o /app/build
+RUN dotnet publish "URL-Shortening-Service.csproj" -c Release -o /app/publish
+
+# Instalar dotnet-ef (si no está ya instalado)
+RUN dotnet tool install --version 9.0.1 --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"

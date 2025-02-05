@@ -1,0 +1,51 @@
+
+
+services:
+  sqlserver:
+    build:
+      context: ./URL-Shortening-Service.BD
+      dockerfile: Dockerfile
+    environment:
+      - SA_PASSWORD=${SA_PASSWORD}
+    ports:
+      - "1533:1433"
+  
+  migrations:
+    depends_on:
+      - sqlserver
+    build:
+      context: ./URL-Shortening-Service
+      dockerfile: Dockerfile.migrations
+    environment:
+      - DB_USER_ID=${DB_USER_ID}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_SERVER=${DB_SERVER}
+    # Ejecuta las migraciones; este servicio se iniciará, aplicará las migraciones y luego terminará.
+    entrypoint: ["dotnet", "ef", "database", "update", "--project", ".", "--startup-project", "."]
+
+  backend:
+    depends_on:
+      - sqlserver
+      - migrations
+    image: url-shortening-service:latest
+    build:
+      context: ./URL-Shortening-Service
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DB_USER_ID=${DB_USER_ID}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_SERVER=${DB_SERVER}
+    ports:
+      - "5000:8080"
+
+  frontend:
+    image: url-shortening-service-front:latest
+    build:
+      context: ./URL-Shortening-Service.Front
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+  
+# variables de entorno alamacenadas en el .env
+ 
