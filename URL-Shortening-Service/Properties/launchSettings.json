@@ -14,13 +14,13 @@
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "DB_SERVER": "localhost",
-        "DB_DATABASE_NAME": "URLSHORT",
-        "DB_USER_ID": "user_url",
-        "DB_PASSWORD": "Pass.1234"
-      },
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development",
+            "DB_SERVER": "LOCALHOST,1533",
+            "DB_DATABASE_NAME": "URLSHORT",
+            "DB_USER_ID": "sa",
+            "DB_PASSWORD": "sa.Bd.123"
+        },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7134;http://localhost:5201"
     },
