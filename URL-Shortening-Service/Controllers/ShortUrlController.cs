@@ -85,7 +85,7 @@ namespace URL_Shortening_Service.Controllers
             try
             {
                 await _shortUrlService.DeleteShortUrl(shortCode);
-                return NoContent();
+                return Ok(new ApiResponse<ShortUrlDTO>(true, "Short URL deleted successfully", null));
             }
             catch (ShortUrlNotFoundException e)
             {
