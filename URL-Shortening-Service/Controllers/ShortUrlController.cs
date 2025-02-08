@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using URL_Shortening_Service.Exceptions;
 using URL_Shortening_Service.Models.DTOs;
+using URL_Shortening_Service.Models.responses;
 using URL_Shortening_Service.Services;
 
 namespace URL_Shortening_Service.Controllers
@@ -25,11 +26,11 @@ namespace URL_Shortening_Service.Controllers
             {
                 var shortUrlDTO = await _shortUrlService.GetShortUrlByShortCode(shortCode);
                 await _shortUrlService.IncrementAccessAcount(shortCode);
-                return Ok(shortUrlDTO);
+                return Ok( new ApiResponse<ShortUrlDTO>(true, "Short URL stats retrieved successfully", shortUrlDTO));
             }
             catch (ShortUrlNotFoundException e)
             {
-                return NotFound(e.Message);
+                return NotFound(new ApiResponse<ShortUrlDTO>(false, e.Message, null));
             }
         }
 
@@ -40,15 +41,17 @@ namespace URL_Shortening_Service.Controllers
             try
             {
                 var shortUrlDTO = await _shortUrlService.AddShortUrl(shortUrlRequestDTO);
-                return Ok(shortUrlDTO);
+                return Ok(new ApiResponse<ShortUrlDTO>(true, "Short URL created successfully", shortUrlDTO));
+
             }
             catch (ShortUrlCannotBeEmpty e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(new ApiResponse<ShortUrlDTO>(false, e.Message, null));
             }
             catch (ShortUrlIsNotValid e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(new ApiResponse<ShortUrlDTO>(false, e.Message, null));
+
             }
         }
 
@@ -59,19 +62,19 @@ namespace URL_Shortening_Service.Controllers
             try
             {
                 var shortUrlDTO = await _shortUrlService.UpdateOriginalUrl(shortUrlRequestDTO, shortCode);
-                return Ok(shortUrlDTO);
+                return Ok(new ApiResponse<ShortUrlDTO>(true, "Short URL updated successfully", shortUrlDTO));
             }
             catch (ShortUrlNotFoundException e)
             {
-                return NotFound(e.Message);
+                return NotFound(new ApiResponse<ShortUrlDTO>(false, e.Message, null));
             }
             catch (ShortUrlCannotBeEmpty e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(new ApiResponse<ShortUrlDTO>(false, e.Message, null));
             }
             catch (ShortUrlIsNotValid e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(new ApiResponse<ShortUrlDTO>(false, e.Message, null));
             }
         }
 
@@ -86,7 +89,7 @@ namespace URL_Shortening_Service.Controllers
             }
             catch (ShortUrlNotFoundException e)
             {
-                return NotFound(e.Message);
+                return NotFound(new ApiResponse<ShortUrlDTO>(false, e.Message, null));
             }
         }
 
@@ -101,12 +104,13 @@ namespace URL_Shortening_Service.Controllers
             {
                 var shortUrlDtoWithAccessAcount = await _shortUrlService.Stats(shortCode);
 
-                return Ok(shortUrlDtoWithAccessAcount);
+                return Ok(new ApiResponse<ShortUrlDtoWithAccessAcount>(true, "Short URL stats retrieved successfully", shortUrlDtoWithAccessAcount));
             }
             catch (ShortUrlNotFoundException e)
             {
 
-                return NotFound(e.Message);
+                return NotFound(new ApiResponse<ShortUrlDtoWithAccessAcount>(false, e.Message, null));
+
 
             }
 
