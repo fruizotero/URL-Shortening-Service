@@ -15,14 +15,81 @@ export class HomeComponent {
   shorturlService = inject(ShortUrlService);
 
   onFormSubmitted(formData: FormShortUrl) {
-    let data = this.shorturlService
+    let { method } = formData;
+
+    switch (method) {
+      case 'get':
+        this.getShortUrl(formData);
+        break;
+
+      case 'post':
+        this.postShorUrl(formData);
+        break;
+      case 'put':
+        this.putShorUrl(formData);
+        break;
+      case 'delete':
+        this.deleteShortUrl(formData);
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  private getShortUrl(formData: FormShortUrl) {
+    this.shorturlService
       .getShortUrl(formData.shortUrl)
       .subscribe((response) => {
-        this.updateResponse(response);
+        if (response.success) {
+
+          this.updateResponse(response.data);
+        } else {
+          this.updateResponse(response);
+         }
+
       });
 
-    this.updateResponse(data);
+    // this.updateResponse(data);
   }
+
+  private postShorUrl(formData: FormShortUrl) {
+   this.shorturlService
+      .postShowUrl(formData.shortUrl)
+      .subscribe((response) => {
+        if (response.success) {
+          this.updateResponse(response.data);
+        } else {
+          this.updateResponse(response);
+        }
+      });
+
+  }
+
+  private putShorUrl(formData: FormShortUrl) {
+    this.shorturlService
+      .putShowUrl(formData.shortUrl, formData.newUrl)
+      .subscribe((response) => {
+        if (response.success) {
+          this.updateResponse(response.data);
+        } else {
+          this.updateResponse(response);
+        }
+      });
+
+  }
+
+  private deleteShortUrl(formData: FormShortUrl) {
+    this.shorturlService
+      .deleteShowUrl(formData.shortUrl)
+      .subscribe((response) => {
+        if (response.success) {
+          this.updateResponse(response.data);
+        } else {
+          this.updateResponse(response);
+        }
+      });
+   }
 
   updateResponse(response: any) {
     this.responseRequest.set(response);
